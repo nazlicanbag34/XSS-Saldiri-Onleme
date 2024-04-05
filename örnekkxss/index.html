@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>XSS Web Sitesi</title>
+</head>
+<body>
+    <header>
+        <h1>Hoş Geldiniz!</h1>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="#home">Ana Sayfa</a></li>
+            <li><a href="about.html">Hakkımızda</a></li>
+            <li><a href="contact.html">İletişim</a></li>
+        </ul>
+    </nav>
+  
+    <section id="home">
+        <img src="png/What-is-Cross-site-Scripting-XSS-and-how-can-you-fix-it_.png" alt="XSS">
+        <div class="yazı"> 
+            <p>Cross-Site Scripting (XSS), internetteki en yaygın siber güvenlik açıklarından biridir.</p>
+            
+            <h2>XSS NEDİR?</h2>    
+            <p>Cross-site scripting attack (XSS) yani siteler arası komut dosyası çalıştırma saldırısı, bir bilgisayar korsanının, 
+               iyi huylu ve güvenilir olarak görülen bir web sayfasının içeriğine, genellikle istemci tarafı komut dosyası biçiminde 
+               kötü amaçlı kod enjekte etmesiyle oluşur. Kötü amaçlı komut dosyası genellikle, JavaScript ve HTML olan istemci
+               tarafı programlama dillerinde yazılır.
+               Genel olarak, XSS saldırılarına yatkın web uygulamaları, kullanıcıların girdilerini doğrulamaz veya kodlamaz. 
+               Bir siber suçlu, bu kusurdan yararlanabilir ve şüphelenmeyen bir son kullanıcıya tehlikeli bir komut dosyası 
+               gönderebilir. Ne yazık ki, kullanıcının tarayıcısı, komut dosyasına güvenilir bir kaynaktan geliyormuş gibi 
+               davranır ve onu yürütür; bu, potansiyel olarak şüphelenmeyen kullanıcıya zarar verir.
+             </p>
+             <h2>XSS SALDIRISI NASIL ÇALIŞIR?</h2>
+             <p>
+                Tipik olarak, siteler arası komut dosyası çalıştırma saldırısı şu şekilde çalışır:
+                Siber suçlular, kullanıcıların girdilerini kabul eden bir web sayfasının XSS saldırılarına açık olduğunu keşfeder. Kullanıcıların yorum kutuları, giriş formları veya arama kutuları aracılığıyla girdilerini kabul ediyor olabilir.
+                Saldırganlar kötü amaçlı bir komut dosyası (yük) oluşturur ve bunu şüphelenmeyen bir kullanıcıya gönderir. Yükü bir kimlik avı bağlantısına ekleyebilir ve hedef alınan kişiyi tıklamaya ikna edebilir.
+                Hedeflenen kişi kötü niyetli bağlantıyı tıkladığında, şimdiye kadar güvendiği savunmasız web sayfasına yönlendirilir.
+                Yük, savunmasız web sayfasına enjekte edilir ve hedef alınan kişinin web tarayıcısı bunu meşru kaynak kodu olarak değerlendirir.
+                Şüphelenmeyen kullanıcı bazı girdiler girip bunları gönderdiğinde, yük siber suçluların talimatlarına göre yürütülür.
+             </p>
+              <!-- Yorumları gösteren bölüm -->
+             <div id="commentSection">
+               <h2>YORUMLAR</h2>
+              <ul id="commentsList">
+               <!-- Yorumlar burada liste olarak gösterilecek -->
+              </ul>
+             </div>
+
+             <form id="commentForm">
+                <label for="comment">Yorum:</label>
+                <textarea id="comment" name="comment" rows="8" cols="100"></textarea>
+                <br>
+                <button type="button" onclick="addComment()">Yorum Gönder</button>
+            </form>
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+        <script>
+            var comments = [];
+
+            function addComment() {
+                var commentText = document.getElementById('comment').value;
+
+                if (MaliciousScript(commentText)) {
+                    document.getElementById('errorMessage').textContent = "Hata: Kötü amaçlı içerik tespit edildi!";
+                    return;
+                }
+
+                commentText = sanitizeInput(commentText);
+                comments.push(commentText);
+                updateCommentSection();
+                document.getElementById('comment').value = '';
+                document.getElementById('errorMessage').textContent = "";
+            }
+    
+            function updateCommentSection() {
+                var commentList = document.getElementById('commentsList');
+                commentList.innerHTML = '';
+
+                for (var i = 0; i < comments.length; i++) {
+                    var commentItem = document.createElement('li');
+                    commentItem.textContent = comments[i];
+                    
+                    // Her yorumun ardına bir satır ekleyin
+                    commentList.appendChild(commentItem);
+                    commentList.appendChild(document.createElement('br'));
+                }
+            }
+
+            function sanitizeInput(input) {
+                var map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+    
+                input = input.replace(/[&<>"']/g, function(m) {
+                    return map[m];
+                });
+    
+                input = input.replace(/<script\b[^<](?:(?!<\/script>)<[^<])*<\/script>/gi, '');
+                return input;
+            }
+
+            function MaliciousScript(input) {
+                return /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi.test(input);
+            }
+        </script>
+        
+    </section>
+
+</body>
+</html>
